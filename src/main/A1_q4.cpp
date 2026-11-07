@@ -18,7 +18,38 @@ namespace aim::q4 {
 struct CommandResult { long long value; int accepted; int rejected; };
 
 // BEGIN IMPLEMENTATION
-CommandResult execute(const std::vector<std::string>& lines) { throw std::runtime_error("TODO"); }
+// aim-cpp-cw
+CommandResult execute(const std::vector<std::string>& lines) {
+    CommandResult result{0, 0, 0};
+    for (const auto& line : lines) {
+        std::istringstream input(line);
+        std::string command, extra;
+        long long x = 0;
+        long long next = result.value;
+        bool ok = true;
+        input >> command;
+        if (command == "RESET") {
+            next = 0;
+        } else if (command == "ADD" || command == "SET") {
+            if (!(input >> x) || x < -1000000 || x > 1000000) {
+                ok = false;
+            } else {
+                next = command == "ADD" ? result.value + x : x;
+            }
+        } else {
+            ok = false;
+        }
+        if (input >> extra) ok = false;
+        if (next < -1000000 || next > 1000000) ok = false;
+        if (ok) {
+            result.value = next;
+            ++result.accepted;
+        } else {
+            ++result.rejected;
+        }
+    }
+    return result;
+}
 // END IMPLEMENTATION
 }
 
